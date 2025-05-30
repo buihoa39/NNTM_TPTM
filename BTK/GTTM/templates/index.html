@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Giám sát giao thông thông minh</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f6f8;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background-color: #0d6efd;
+      color: white;
+      padding: 20px 0;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 28px;
+    }
+
+    .main-container {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      padding: 30px;
+    }
+
+    .video-container {
+      background-color: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      max-width: 800px;
+      flex: 2;
+    }
+
+    .violation-list {
+      background-color: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      max-width: 350px;
+      flex: 1;
+      height: fit-content;
+    }
+
+    .violation-list h2 {
+      margin-top: 0;
+      font-size: 20px;
+      color: #dc3545;
+    }
+
+    .violation-list ul {
+      padding-left: 20px;
+    }
+
+    .violation-list li {
+      margin-bottom: 10px;
+      color: #333;
+    }
+
+    img {
+      width: 100%;
+      border-radius: 8px;
+    }
+
+    footer {
+      margin-top: 40px;
+      font-size: 14px;
+      color: #666;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🛑 Hệ thống giám sát giao thông thông minh</h1>
+  </header>
+
+  <div class="main-container">
+    <!-- Cột video -->
+    <div class="video-container">
+      <img src="{{ url_for('video_feed') }}" alt="Luồng video giao thông thông minh">
+    </div>
+
+    <!-- Cột danh sách xe vi phạm -->
+    <div class="violation-list">
+      <h2>Danh sách xe vi phạm</h2>
+      <ul id="violation-items">
+        <!-- Danh sách sẽ được cập nhật bằng JavaScript -->
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    async function fetchViolations() {
+      try {
+        const res = await fetch('/violations');
+        const data = await res.json();
+        const list = document.getElementById('violation-items');
+        list.innerHTML = '';
+
+        if (data.length === 0) {
+          const li = document.createElement('li');
+          li.textContent = "✅ Hiện không có xe vi phạm.";
+          list.appendChild(li);
+        }
+
+        for (let item of data) {
+          const li = document.createElement('li');
+          li.textContent = `🚗 Xe ID ${item.id} vượt đèn đỏ lúc ${item.timestamp}`;
+          list.appendChild(li);
+        }
+      } catch (error) {
+        console.error("Lỗi khi lấy danh sách vi phạm:", error);
+      }
+    }
+
+    // Cập nhật danh sách mỗi 3 giây
+    setInterval(fetchViolations, 3000);
+    fetchViolations(); // Gọi ngay khi load trang
+  </script>
+
+  <footer>
+    <p>&copy; 2025 - Smart City Project</p>
+  </footer>
+</body>
+</html>
